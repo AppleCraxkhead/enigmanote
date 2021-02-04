@@ -1,3 +1,5 @@
+# Credits: Me (AppleCraxkhead), and random people on stack overflow ofc
+#ill put some history of the enigma machine here later
 print("""
 d88888b d8b   db d888888b  d888b  .88b  d88.  .d8b.       d8b   db  .d88b.  d888888b d88888b 
 88'     888o  88   `88'   88' Y8b 88'YbdP`88 d8' `8b      888o  88 .8P  Y8. `~~88~~' 88'     
@@ -17,15 +19,15 @@ print("#########################################################################
 rotori = input("Rotor 1 setting? (Enter a roman numeral from I to V): ")
 rotorii = input("Rotor 2 setting? (Enter a roman numeral from I to V): ")
 rotoriii = input("Rotor 3 setting? (Enter a roman numeral from I to V): ")
-reflectori = input("Reflector setting? (Choose between UKW-B and UKW-C")
 # ----------------- Settings ------------------------
 rotors = (rotori,rotorii,rotoriii)
-reflector = (reflectori)
-ringSettings ="ABC"
+reflector = "UKW-B" # allowing this to be changed by user cause problems when decrypting messages, I'll look into it later
+ringSettings ="ABC" #support for changing ring settings is planned
 ringPositions = "DEF" 
-plugboard = "AT BS DE FM IR KN LZ OW PV XY"
+plugboard = "AT BS DE FM IR KN LZ OW PV XY" # not too much of a need to change this but whatever makes ya happy!
 # ---------------------------------------------------
 
+# Behind the curtain...
 def caesarShift(str, amount):
 	output = ""
 
@@ -40,7 +42,7 @@ def caesarShift(str, amount):
 
 def encode(plaintext):
   global rotors, reflector,ringSettings,ringPositions,plugboard
-  #Enigma Rotors and reflectors
+  #Rotors and reflectors
   rotor1 = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
   rotor1Notch = "Q"
   rotor2 = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
@@ -68,7 +70,7 @@ def encode(plaintext):
   else:
     reflectorDict = reflectorC
   
-  #A = Left,  B = Mid,  C=Right 
+  #A = Left,  B = Mid,  C= Right 
   rotorA = rotorDict[rotors[0]]
   rotorB = rotorDict[rotors[1]]
   rotorC = rotorDict[rotors[2]]
@@ -100,7 +102,7 @@ def encode(plaintext):
 
   ciphertext = ""
   
-  #Converplugboard settings into a dictionary
+  #put Conver plugboard settings into a dictionary
   plugboardConnections = plugboard.upper().split(" ")
   plugboardDict = {}
   for pair in plugboardConnections:
@@ -113,7 +115,7 @@ def encode(plaintext):
     encryptedLetter = letter  
     
     if letter in alphabet:
-      #Rotate Rotors - This happens as soon as a key is pressed, before encrypting the letter!
+      #Rotate Rotors - This happens as soon as a key is pressed
       rotorTrigger = False
       #Third rotor rotates by 1 for every key being pressed
       if rotorCLetter == rotorCNotch:
@@ -132,17 +134,17 @@ def encode(plaintext):
           rotorALetter = alphabet[(alphabet.index(rotorALetter) + 1) % 26]
       		 
       else:
-          #Check for double step sequence!
+          #Checks for double step sequence
         if rotorBLetter == rotorBNotch:
           rotorBLetter = alphabet[(alphabet.index(rotorBLetter) + 1) % 26]
           rotorALetter = alphabet[(alphabet.index(rotorALetter) + 1) % 26]
         
-      #Implement plugboard encryption!
+      #Plugboard encryption
       if letter in plugboardDict.keys():
         if plugboardDict[letter]!="":
           encryptedLetter = plugboardDict[letter]
     
-      #Rotors & Reflector Encryption
+      #Rotors and Reflector Encryption
       offsetA = alphabet.index(rotorALetter)
       offsetB = alphabet.index(rotorBLetter)
       offsetC = alphabet.index(rotorCLetter)
@@ -198,9 +200,8 @@ def encode(plaintext):
   
   return ciphertext
 
-#Main program begins
 
-
+# in front of the curtain...
 plaintext = input("Enter text to encode or decode:\n")
 ciphertext = encode(plaintext)
 
