@@ -1,5 +1,3 @@
-# Credits: Me (AppleCraxkhead), and random people on stack overflow ofc
-#ill put some history of the enigma machine here later
 print("""
 d88888b d8b   db d888888b  d888b  .88b  d88.  .d8b.       d8b   db  .d88b.  d888888b d88888b 
 88'     888o  88   `88'   88' Y8b 88'YbdP`88 d8' `8b      888o  88 .8P  Y8. `~~88~~' 88'     
@@ -21,9 +19,9 @@ rotorii = input("Rotor 2 setting? (Enter a roman numeral from I to V): ")
 rotoriii = input("Rotor 3 setting? (Enter a roman numeral from I to V): ")
 # ----------------- Settings ------------------------
 rotors = (rotori,rotorii,rotoriii)
-reflector = "UKW-B" # allowing this to be changed by user cause problems when decrypting messages, I'll look into it later
-ringSettings ="ABC" #support for changing ring settings is planned
-ringPositions = "DEF" 
+reflector = "UKW-B" # Choose between UKW-B and UKW-C
+ringSettings ="ABC" #Choose any three letters
+ringPositions = "DEF" #choose any three letters
 plugboard = "AT BS DE FM IR KN LZ OW PV XY" # not too much of a need to change this but whatever makes ya happy!
 # ---------------------------------------------------
 
