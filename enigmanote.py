@@ -21,7 +21,7 @@ rotoriii = input("Rotor 3 setting? (Enter a roman numeral from I to V): ")
 rotors = (rotori,rotorii,rotoriii)
 reflector = "UKW-B" # Choose between UKW-B and UKW-C
 ringSettings ="ABC" #Choose any three letters
-ringPositions = "DEF" #choose any three letters
+ringPositions = "DEF" # Choose any three letters
 plugboard = "AT BS DE FM IR KN LZ OW PV XY" # not too much of a need to change this but whatever makes ya happy!
 # ---------------------------------------------------
 
