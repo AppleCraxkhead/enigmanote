@@ -1,0 +1,18 @@
+SAVED MACHINE STATE
+
+ Rotor Settings: 
+II,III,I
+ Ring Setting: 
+HDG
+ Ring Position: 
+KSH
+------------------------------------------
+
+SAVED MACHINE STATE
+
+ Rotor Settings: 
+II,III,I
+ Ring Setting: 
+JSD
+ Ring Position: 
+JSD

@@ -1,3 +1,5 @@
+import os.path
+from os import path
 print("""
 d88888b d8b   db d888888b  d888b  .88b  d88.  .d8b.       d8b   db  .d88b.  d888888b d88888b 
 88'     888o  88   `88'   88' Y8b 88'YbdP`88 d8' `8b      888o  88 .8P  Y8. `~~88~~' 88'     
@@ -14,14 +16,16 @@ print("Press ENTER to begin")
 input()
 print("##################################################################################################")
 # Manual settings input by user
-rotori = input("Rotor 1 setting? (Enter a roman numeral from I to V): ")
-rotorii = input("Rotor 2 setting? (Enter a roman numeral from I to V): ")
-rotoriii = input("Rotor 3 setting? (Enter a roman numeral from I to V): ")
+rotori = input("Rotor 1 setting? (Enter a roman numeral from I to V):\n")
+rotorii = input("Rotor 2 setting? (Enter a roman numeral from I to V):\n")
+rotoriii = input("Rotor 3 setting? (Enter a roman numeral from I to V):\n")
+ringsettingi = input("Ring settings? (Enter a combination of three capital letters:\n")
+ringpositioni = input("Ring position? (Enter a combination of three capital letters):\n")
 # ----------------- Settings ------------------------
 rotors = (rotori,rotorii,rotoriii)
 reflector = "UKW-B" # Choose between UKW-B and UKW-C
-ringSettings ="ABC" #Choose any three letters
-ringPositions = "DEF" # Choose any three letters
+ringSettings = ringsettingi #Choose any three letters
+ringPositions = ringpositioni # Choose any three letters
 plugboard = "AT BS DE FM IR KN LZ OW PV XY" # not too much of a need to change this but whatever makes ya happy!
 # ---------------------------------------------------
 
@@ -202,8 +206,58 @@ def encode(plaintext):
 # in front of the curtain...
 plaintext = input("Enter text to encode or decode:\n")
 ciphertext = encode(plaintext)
-
 print("\nEncoded text: \n " + ciphertext)
 print("")
-print("Press ENTER to close program")
+savedecision = input("Would you like to back up your settings? Y/N \n")
+if savedecision == ("Y"):
+  if path.exists("machinesettings.txt"):
+    saveidecision = input("Would you like to overwrite the saved machine settings? Y/N \n")
+    if saveidecision == ("Y"):
+      with open('machinesettings.txt', 'w') as f:
+        f.write('\nSAVED MACHINE STATE\n')
+        f.write('\n Rotor Settings: \n')
+        f.writelines(rotori)
+        f.write(',')
+        f.writelines(rotorii)
+        f.write(',')
+        f.writelines(rotoriii)
+        f.write('\n Ring Settings: \n')
+        f.writelines(ringsettingi)
+        f.write('\n Ring Position: \n')
+        f.writelines(ringpositioni)
+    elif saveidecision == ('N'):
+      with open('machinesettings.txt', 'a') as f:
+        f.write('\n------------------------------------------\n')
+        f.write('\nSAVED MACHINE STATE\n')
+        f.write('\n Rotor Settings: \n')
+        f.writelines(rotori)
+        f.write(',')
+        f.writelines(rotorii)
+        f.write(',')
+        f.writelines(rotoriii)
+        f.write('\n Ring Setting: \n')
+        f.writelines(ringsettingi)
+        f.write('\n Ring Position: \n')
+        f.writelines(ringpositioni)
+    else:
+      print('unexpected input... congrats, youve crashed me. restart the program and follow instructions next time')
+  else:
+    with open('machinesettings.txt', 'a') as f:
+        f.write('SAVED MACHINE STATE\n')
+        f.write('\n Rotor Settings: \n')
+        f.writelines(rotori)
+        f.write(',')
+        f.writelines(rotorii)
+        f.write(',')
+        f.writelines(rotoriii)
+        f.write('\n Ring Setting: \n')
+        f.writelines(ringsettingi)
+        f.write('\n Ring Position: \n')
+        f.writelines(ringpositioni)
+else:
+  print("\n You have chosen not to back up your machine settings. Without these, your notes may be unrecoverable \n")
+    
+if savedecision == ("Y"):
+  print('Machine settings saved successfully!\n')
+print("Press ENTER to close program\n")
 input()
