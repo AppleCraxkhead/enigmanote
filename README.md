@@ -6,7 +6,9 @@ Encrypt your files with the same encryption method the Germans used in WWII!
 - Heavily customizable encryption
 - More planned features
 ## Installation
-Just download and run the .py file for right now ;)
+Requirements: 
+pysimplegui (`pip install pysimplegui`)
+pyperclip (1pip install pyperclip`)
 ## Usage
 ### Encoding
 1. Open the file
