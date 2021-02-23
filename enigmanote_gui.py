@@ -1,16 +1,19 @@
 import PySimpleGUI as sg
 import pyperclip as clipboard
-sg.theme('Default1')   # Add a touch of color
-# All the stuff inside your window.
+import os.path
+from os import path
+import time
+sg.theme('Default1')
+#gui
 layout = [  [sg.Text('Welcome to Enigma Note.')],
-            [sg.Text('Enter rotor 1 setting'), sg.InputText('', key ='rotori')],
+            [sg.Text('Enter rotor 1 setting'), sg.InputText('', key ='rotori')], # make a radio list later (clickable dots)
             [sg.Text('Enter rotor 2 setting'), sg.InputText('', key ='rotorii')],
             [sg.Text('Enter rotor 3  setting'), sg.InputText('', key ='rotoriii')],
             [sg.Text('Enter ring setting'), sg.InputText('', key ='ringsettingi')],
             [sg.Text('Ring Position'), sg.InputText('', key ='ringpositioni')],
             [sg.Text('Enter Text to Encode/Decode'), sg.InputText('', key ='rawplaintext')],
             [sg.Text('Your Encoded/Decoded Text: '), sg.Text(size=(30,1), key ='cipheroutput')],
-            [sg.Button('Enter'), sg.Button('Close'), sg.Button('Help'), sg.Button('Copy Result', visible = False)]]
+            [sg.Button('Enter'), sg.Button('Close'), sg.Button('Help'), sg.Button('Copy Result', visible = False), sg.Button('Save Settings', visible = False)]]
 # Create the Window
 window = sg.Window('Enigma Note', layout)
 # Event Loop to process "events" and get the "values" of the inputs
@@ -197,14 +200,49 @@ while True:
                 ciphertext = ciphertext + encryptedLetter
             
             return ciphertext
+        #--------------Temporary fix for spaces-------------
         dirtyplaintext = values['rawplaintext']
         plaintext = dirtyplaintext.replace(' ','placeholdertextiii')
         ciphertext = encode(plaintext)
         cleanedciphertext = ciphertext.replace('PLACEHOLDERTEXTIII', ' ')
+        #----------------------------------------------------
         window['cipheroutput'].update(cleanedciphertext)
-        window.Element('Copy Result').Update(visible = True)
+        #--------------Makes copy and save buttons visible-------------
+        window.Element('Copy Result').Update(visible = True) 
+        window.Element('Save Settings').Update(visible = True)
+        #----------------------------------------------------
+    def savestuff():
+        rotor_i_save = values['rotori']
+        rotor_ii_save = values['rotorii']
+        rotor_iii_save = values['rotoriii']
+        ring_setting_save = values['ringsettingi']
+        ring_position_save = values['ringpositioni']
+        with open('machinesettings.txt', 'w') as f:
+            f.writelines("""
+d88888b d8b   db d888888b  d888b  .88b  d88.  .d8b.       d8b   db  .d88b.  d888888b d88888b 
+88'     888o  88   `88'   88' Y8b 88'YbdP`88 d8' `8b      888o  88 .8P  Y8. `~~88~~' 88'     
+88ooooo 88V8o 88    88    88      88  88  88 88ooo88      88V8o 88 88    88    88    88ooooo 
+88~~~~~ 88 V8o88    88    88  ooo 88  88  88 88~~~88      88 V8o88 88    88    88    88~~~~~ 
+88.     88  V888   .88.   88. ~8~ 88  88  88 88   88      88  V888 `8b  d8'    88    88.     
+Y88888P VP   V8P Y888888P  Y888P  YP  YP  YP YP   YP      VP   V8P  `Y88P'     YP    Y88888P """)
+            f.write('\n------------------------------------------\n')
+            f.write('\nSAVED MACHINE STATE\n')
+            f.write('\n Rotor Settings: \n')
+            f.writelines(rotor_i_save.upper())
+            f.write(',')
+            f.writelines(rotor_ii_save.upper())
+            f.write(',')
+            f.writelines(rotor_iii_save.upper())
+            f.write('\n Ring Settings: \n')
+            f.writelines(ring_setting_save.upper())
+            f.write('\n Ring Position: \n')
+            f.writelines(ring_position_save.upper())
+
     if event == 'Copy Result':
         clipboard.copy(cleanedciphertext)
+    if event == 'Save Settings':
+        savestuff()
+        sg.popup('Machine state saved successfully')
     if event == 'Help':
         sg.Popup("""
 Setting the rotors: use any combination of the following roman numerals: i,ii,iii \n
