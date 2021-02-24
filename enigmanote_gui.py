@@ -3,25 +3,65 @@ import pyperclip as clipboard
 import os.path
 from os import path
 import time
+from smtplib import SMTP, SMTPException, SMTPAuthenticationError, SMTPConnectError, SMTPServerDisconnected, SMTPSenderRefused, SMTPHeloError
+from getpass import getpass
+import smtplib, ssl
+from email.message import EmailMessage
 sg.theme('Default1')
-#gui
+#gui layout
 layout = [  [sg.Text('Welcome to Enigma Note.')],
-            [sg.Text('Enter rotor 1 setting'), sg.InputText('', key ='rotori')], # make a radio list later (clickable dots)
-            [sg.Text('Enter rotor 2 setting'), sg.InputText('', key ='rotorii')],
-            [sg.Text('Enter rotor 3  setting'), sg.InputText('', key ='rotoriii')],
+            [sg.Text('Enter rotor 1 setting'), sg.Radio('I', "rotori", default = True, key = 'rotori_one'), sg.Radio('II', "rotori", key = 'rotori_two'), sg.Radio('III', "rotori", key = 'rotori_three')],
+            [sg.Text('Enter rotor 2 setting'), sg.Radio('I', "rotorii", default = True, key = 'rotorii_one'), sg.Radio('II', "rotorii", key = 'rotorii_two'), sg.Radio('III', "rotorii", key = 'rotorii_three')],
+            [sg.Text('Enter rotor 3  setting'), sg.Radio('I', "rotoriii", default = True, key = 'rotoriii_one'), sg.Radio('II', "rotoriii", key = 'rotoriii_two'), sg.Radio('III', "rotoriii", key = 'rotoriii_three')],
             [sg.Text('Enter ring setting'), sg.InputText('', key ='ringsettingi')],
             [sg.Text('Ring Position'), sg.InputText('', key ='ringpositioni')],
             [sg.Text('Enter Text to Encode/Decode'), sg.InputText('', key ='rawplaintext')],
             [sg.Text('Your Encoded/Decoded Text: '), sg.Text(size=(30,1), key ='cipheroutput')],
-            [sg.Button('Enter'), sg.Button('Close'), sg.Button('Help'), sg.Button('Copy Result', visible = False), sg.Button('Save Settings', visible = False)]]
+            [sg.Button('Enter'), sg.Button('Close'), sg.Button('Help'), sg.Button('Copy Result', visible = False), sg.Button('Save Settings', visible = False), sg.Button('Send as Email', visible = False)]]
+mail_layout = [
+    [sg.Text('To:'), sg.InputText('', key = 'to_address')],
+    [sg.Text('From:'), sg.InputText('', key = 'from_address')],
+    [sg.Text('Email password:'), sg.InputText('', password_char='*', key = 'password')],
+    [sg.Text('Mail server address: '), sg.Checkbox('Gmail', key = 'gmail'), sg.InputText('Other', key = 'serv_address')],
+    [sg.Button('Submit'), sg.Button('Cancel')]]
 # Create the Window
 window = sg.Window('Enigma Note', layout)
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
     event, values = window.read()
+    def rotorRadio(rotor_num): # Translates the rotor selection buttons into roman numerals for the machine to read
+        if rotor_num == 'rotori':
+            if values['rotori_one'] == True:
+                _rotori_ = 'I'
+            if values['rotori_two'] == True:
+                _rotori_ = 'II'
+            if values['rotori_three'] == True:
+                _rotori_ = 'III'
+            return _rotori_
+        if rotor_num == 'rotorii':
+            if values['rotorii_one'] == True:
+                _rotorii_ = 'I'
+            if values['rotorii_two'] == True:
+                _rotorii_ = 'II'
+            if values['rotorii_three'] == True:
+                _rotorii_ = 'III'
+            return _rotorii_
+        if rotor_num == 'rotoriii':
+            if values['rotoriii_one'] == True:
+                _rotoriii_ = 'I'
+            if values['rotoriii_two'] == True:
+                _rotoriii_ = 'II'
+            if values['rotoriii_three'] == True:
+                _rotoriii_ = 'III'
+            return _rotoriii_
     if event == 'Enter':
+        # Runs the rotorRadio function 3 times to get the settings of each rotor
+        _rotoridecision_ = rotorRadio('rotori') 
+        _rotoriidecision_ = rotorRadio('rotorii') 
+        _rotoriiidecision_ = rotorRadio('rotoriii')
+
         # ----------------- Settings ------------------------
-        rotors = (values['rotori'].upper(),values['rotorii'].upper(),values['rotoriii'].upper())
+        rotors = (_rotoridecision_,_rotoriidecision_, _rotoriiidecision_) #this was harder than it should have been
         reflector = "UKW-B" # Choose between UKW-B and UKW-C
         ringSettings = values['ringsettingi'].upper() #Choose any three letters
         ringPositions = values['ringpositioni'].upper() # Choose any three letters
@@ -62,7 +102,7 @@ while True:
             reflectorC = {"A":"F","F":"A","B":"V","V":"B","C":"P","P":"C","D":"J","J":"D","E":"I","I":"E","G":"O","O":"G","H":"Y","Y":"H","K":"R","R":"K","L":"Z","Z":"L","M":"X","X":"M","N":"W","W":"N","Q":"T","T":"Q","S":"U","U":"S"}
             
             alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            rotorANotch = False
+            rotorANotch = False #ehh
             rotorBNotch = False
             rotorCNotch = False
             
@@ -200,18 +240,57 @@ while True:
                 ciphertext = ciphertext + encryptedLetter
             
             return ciphertext
-        #--------------Temporary fix for spaces-------------
+        #Temporary fix for spaces
         dirtyplaintext = values['rawplaintext']
         plaintext = dirtyplaintext.replace(' ','placeholdertextiii')
         ciphertext = encode(plaintext)
         cleanedciphertext = ciphertext.replace('PLACEHOLDERTEXTIII', ' ')
-        #----------------------------------------------------
         window['cipheroutput'].update(cleanedciphertext)
-        #--------------Makes copy and save buttons visible-------------
+        #Makes copy and save buttons visible
         window.Element('Copy Result').Update(visible = True) 
         window.Element('Save Settings').Update(visible = True)
+        window.Element('Send as Email').Update(visible = True)
         #----------------------------------------------------
-    def savestuff():
+    def getEmail():
+        window2 = sg.Window('Send Email', mail_layout)
+        while True:
+            event, values = window2.read()
+            if event == 'Submit':
+                toaddy = values['to_address']
+                fromaddy = values['from_address']
+                servaddy = values['serv_address']
+                passwordi = values['password']
+                gmailaddy = values['gmail']
+                TO = toaddy
+                FROM = fromaddy
+                message = cleanedciphertext
+                port = 465  # For SSL
+                if gmailaddy == True:
+                    serveri = 'smtp.gmail.com'
+                else: 
+                    serveri = servaddy
+                password = passwordi
+                # Create a secure SSL context
+                context = ssl.create_default_context()
+                try: 
+                    with smtplib.SMTP_SSL(serveri, port, context=context) as server:
+                        server.login(FROM, password)
+                        server.sendmail(FROM, TO, message)
+                        sg.popup('Email sent Successfully')
+                        server.quit()
+                except SMTPAuthenticationError:
+                    sg.Popup("AUTHENTICATION ERROR: Possible causes: \n Incorrect username/password \n Security settings prohibit access. (example: make sure <less secure app access> is enabled for gmail users)")
+                except SMTPConnectError:
+                    sg.popup("ERROR: Unable to connect to SMTP server. The server may be down, or you entered it incorrectly. ")
+                except SMTPServerDisconnected:
+                    sg.popup("ERROR: SMTP Server disconnected unexpectedly")
+                except SMTPSenderRefused:
+                    sg.popup("ERROR: Sender address refused by server")
+                except SMTPHeloError:
+                    sg.popup("ERROR: SMTP server refused HELO/EHLO message")
+            if event == 'Cancel' or event == sg.WIN_CLOSED:
+                break 
+    def saveStuff():
         rotor_i_save = values['rotori']
         rotor_ii_save = values['rotorii']
         rotor_iii_save = values['rotoriii']
@@ -241,8 +320,11 @@ Y88888P VP   V8P Y888888P  Y888P  YP  YP  YP YP   YP      VP   V8P  `Y88P'     Y
     if event == 'Copy Result':
         clipboard.copy(cleanedciphertext)
     if event == 'Save Settings':
-        savestuff()
+        saveStuff()
+        time.sleep(0.5)
         sg.popup('Machine state saved successfully')
+    if event == 'Send as Email':
+        getEmail()
     if event == 'Help':
         sg.Popup("""
 Setting the rotors: use any combination of the following roman numerals: i,ii,iii \n
